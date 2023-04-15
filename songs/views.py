@@ -11,11 +11,22 @@ def songs_list(request):
         songs = Song.objects.all() 
         serializer = SongSerializer(songs, many=True)
         return Response(serializer.data)
+    
     elif request.method == 'POST':
         serializer = SongSerializer(data=request.data)
-        if serializer.is_valid() == True:
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
 
+@api_view(['GET'])
+def songs_detail(request, pk):
+    try:
+        song = Song.objects.get(pk=pk)
+        serializer = SongSerializer(song)
+        return Response(serializer.data)
+    
+    except Song.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    
